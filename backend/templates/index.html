@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>社員一覧</title>
+</head>
+<body>
+    <h1>社員一覧</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>氏名</th>
+            <th>部署</th>
+            <th>入社日</th>
+        </tr>
+        {% for 社員 in 社員リスト %}
+        <tr>
+            <td>{{ 社員.ID }}</td>
+            <td>{{ 社員.fld_氏名 }}</td>
+            <td>{{ 社員.fld_ステータス }}</td>
+            <td>{{ 社員.fld_所属 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
