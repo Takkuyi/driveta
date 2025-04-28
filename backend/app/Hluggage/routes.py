@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 from app.Hluggage.models import db, CrateWeights, CourseGroups, Courses, Clients, LoadingData, LoadingMethods
 from sqlalchemy import func, case
 
-routes_bp = Blueprint("routes", __name__)
+Hluggage_bp = Blueprint("hluggage", __name__)
 
 # 🔹 全テーブルリスト（テーブル名: クラス名）
 TABLES = {
@@ -15,11 +15,17 @@ TABLES = {
     "loading_data": LoadingData,
 }
 
-# ✅ すべてのレコードを取得（GET /テーブル名）
-@routes_bp.route("/<table_name>", methods=["GET"])
+@Hluggage_bp.route("/", methods=["GET"])
+def hluggage_home():
+    return jsonify({"message": "Welcome to the Hluggage API! Available tables: " + ", ".join(TABLES.keys())}), 200
+
+@Hluggage_bp.route("/<table_name>", methods=["GET"])
 def get_all_records(table_name):
     if table_name not in TABLES:
-        return jsonify({"error": "Invalid table name"}), 404
+        return jsonify({
+            "error": "Invalid table name",
+            "available_tables": list(TABLES.keys())
+        }), 404
 
     model = TABLES[table_name]
     records = model.query.all()
@@ -27,7 +33,7 @@ def get_all_records(table_name):
     return jsonify([record.to_dict() for record in records]), 200
 
 # ✅ 新規レコードを追加（POST /テーブル名）
-@routes_bp.route("/<table_name>", methods=["POST"])
+@Hluggage_bp.route("/<table_name>", methods=["POST"])
 def create_record(table_name):
     if table_name not in TABLES:
         return jsonify({"error": "Invalid table name"}), 404
@@ -45,7 +51,7 @@ def create_record(table_name):
         return jsonify({"error": str(e)}), 400
 
 # ✅ レコードを更新（PUT /テーブル名/<id>）
-@routes_bp.route("/<table_name>/<int:id>", methods=["PUT"])
+@Hluggage_bp.route("/<table_name>/<int:id>", methods=["PUT"])
 def update_record(table_name, id):
     if table_name not in TABLES:
         return jsonify({"error": "Invalid table name"}), 404
@@ -68,7 +74,7 @@ def update_record(table_name, id):
         return jsonify({"error": str(e)}), 400
 
 # ✅ レコードを削除（DELETE /テーブル名/<id>）
-@routes_bp.route("/<table_name>/<int:id>", methods=["DELETE"])
+@Hluggage_bp.route("/<table_name>/<int:id>", methods=["DELETE"])
 def delete_record(table_name, id):
     if table_name not in TABLES:
         return jsonify({"error": "Invalid table name"}), 404
@@ -105,7 +111,7 @@ def delete_record(table_name, id):
 
 #    return jsonify([record.to_dict() for record in records]), 200
 
-@routes_bp.route("/loading_data/date/<string:date_str>", methods=["GET"])
+@Hluggage_bp.route("/loading_data/date/<string:date_str>", methods=["GET"])
 def get_loading_data_by_date(date_str):
     """指定した日付の積込量データを取得するAPI"""
     try:
@@ -155,7 +161,7 @@ def get_loading_data_by_date(date_str):
 
     return jsonify(data)
     
-@routes_bp.route("/loading_data/summary/<string:date_str>", methods=["GET"])
+@Hluggage_bp.route("/loading_data/summary/<string:date_str>", methods=["GET"])
 def get_loading_data_summary(date_str):
     """指定した日付の積込量データの集計を取得するAPI"""
     try:
@@ -247,3 +253,11 @@ def get_loading_data_summary(date_str):
     ]
 
     return jsonify(data)
+
+@Hluggage_bp.route("/test-db", methods=["GET"])
+def test_db():
+    try:
+        result = db.session.execute("SELECT 1").scalar()
+        return jsonify({"message": "Database connected successfully!", "result": result}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

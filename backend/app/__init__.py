@@ -1,13 +1,9 @@
 import os
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate 
 from .extensions import db, cors, login_manager, migrate
 from .config import DevelopmentConfig, ProductionConfig
-#from .vehicle.models import Vehicle
-from app.vehicle.routes import vehicle_bp
-from app.Hluggage.routes import routes_bp as hluggage_bp
-from app.Hluggage import models as hluggage_models
 
 #db = SQLAlchemy()
 migrate = Migrate()  # ← Flask-Migrate のインスタンス作成
@@ -41,10 +37,15 @@ def create_app():
     from .auth.routes import login_bp
     from .etc.routes import routes_bp
     from .vehicle.routes import vehicle_bp
+    from .Hluggage.routes import Hluggage_bp
   
     app.register_blueprint(login_bp)
     app.register_blueprint(routes_bp)
     app.register_blueprint(vehicle_bp)
-    app.register_blueprint(hluggage_bp, url_prefix="/hluggage")
+    app.register_blueprint(Hluggage_bp)
+
+    @app.route("/", methods=["GET"])
+    def home():
+        return jsonify({"message": "Welcome to the API!"}), 200
 
     return app
