@@ -1,3 +1,4 @@
+from app.extensions import db  
 from typing import List, Optional
 
 from sqlalchemy import Column, DECIMAL, Date, DateTime, Enum, ForeignKeyConstraint, Index, String, TIMESTAMP, Table, Text, text
@@ -6,17 +7,12 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 import datetime
 import decimal
 
-# Flask用に修正（flask_sqlalchemyを使用）
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
-
 class CrateWeights(db.Model):
     __tablename__ = 'crate_weights'
 
     fld_クレート種別: Mapped[str] = mapped_column(String(255))
     id: Mapped[int] = mapped_column(INTEGER(11), primary_key=True)
-    fld_重量: Mapped[Optional[int]] = mapped_column(SMALLINT(6))
+    fld_重量: Mapped[Optional[float]] = mapped_column(DECIMAL(10, 2))
 
     def to_dict(self):
         """JSONレスポンス用に辞書化"""
@@ -49,12 +45,13 @@ class CourseGroups(db.Model):
 class Courses(db.Model):
     __tablename__ = 'courses'
 
-    fld_コースID: Mapped[int] = mapped_column(SMALLINT(6), primary_key=True)
+    fld_コースID: Mapped[int] = mapped_column(SMALLINT, primary_key=True)
     fld_コース名: Mapped[Optional[str]] = mapped_column(String(255))
     fld_車格: Mapped[Optional[str]] = mapped_column(String(255))
     fld_積み方ID: Mapped[Optional[str]] = mapped_column(String(255))
     fld_KR便名: Mapped[Optional[str]] = mapped_column(String(255))
     fld_仕分日係数: Mapped[Optional[int]] = mapped_column(INTEGER(11))
+    created_at: Mapped[Optional[datetime.datetime]] = mapped_column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"))
     
     def to_dict(self):
         """JSONレスポンス用に辞書化"""

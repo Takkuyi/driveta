@@ -2,7 +2,7 @@ import click
 import pandas as pd
 from flask.cli import with_appcontext
 from app import db
-from .models import Vehicle
+from models import Vehicles
 
 def clean_value(value):
     if pd.isna(value) or value == '-' or str(value).strip() == '':
@@ -28,7 +28,7 @@ def import_csv():
         data = row.to_dict()
         clean_data = {k: (None if pd.isna(v) else v) for k, v in data.items()}
 
-        vehicle = Vehicle(
+        vehicle = Vehicles(
             状態=clean_data.get("状態"),
             車番=clean_data.get("車番"),
             車格=clean_data.get("車格"),

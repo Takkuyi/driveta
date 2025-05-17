@@ -1,6 +1,5 @@
 import os
 from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate 
 from .extensions import db, cors, login_manager, migrate
 from .config import DevelopmentConfig, ProductionConfig
@@ -30,7 +29,7 @@ def create_app():
     # Modelインポート
     from .auth.models import User
     from .etc.models import ETCUsage
-    from .vehicle.models import ICVehicleRaw
+    from .vehicle.models import Vehicles
     from .Hluggage.models import CrateWeights, CourseGroups, Courses, Clients, LoadingData, LoadingMethods
 
     # Blueprint登録

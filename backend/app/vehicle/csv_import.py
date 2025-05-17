@@ -2,7 +2,7 @@ import os
 import csv
 from app import create_app
 from app.extensions import db
-from app.vehicle.models import Vehicle
+from backend.app.vehicle import Vehicles
 
 app = create_app()
 
@@ -20,7 +20,7 @@ def import_vehicle_csv():
                     reader = csv.DictReader(csvfile)
 
                     for row in reader:
-                        vehicle = Vehicle.from_csv_row(row)
+                        vehicle = Vehicles.from_csv_row(row)
 
                         # 車両番号がなければスキップ（主キー扱い）
                         if not vehicle.vehicle_number:
@@ -28,7 +28,7 @@ def import_vehicle_csv():
                             continue
 
                         # すでに同じ車両番号が存在する場合はスキップ or 上書きも可
-                        existing = Vehicle.query.filter_by(vehicle_number=vehicle.vehicle_number).first()
+                        existing = Vehicles.query.filter_by(vehicle_number=vehicle.vehicle_number).first()
                         if existing:
                             print(f"↩️  既存レコードあり: {vehicle.vehicle_number}")
                             continue
