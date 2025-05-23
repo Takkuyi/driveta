@@ -11,6 +11,9 @@ def create_app():
     app = Flask(__name__)
     app.config['JSON_AS_ASCII'] = False
 
+    # アップロードディレクトリの作成
+    #os.makedirs(app.config['TEMP_FOLDER'], exist_ok=True)
+
     # 環境変数から設定を切り替え
     env = os.environ.get("FLASK_ENV", "development")
     if env == "production":
@@ -31,17 +34,23 @@ def create_app():
     from .etc.models import ETCUsage
     from .vehicle.models import Vehicles
     from .Hluggage.models import CrateWeights, CourseGroups, Courses, Clients, LoadingData, LoadingMethods
+    from .maintenance.models import MaintenanceType, MaintenanceStatus, MaintenanceSchedule
+    from .employee.models import Employee
 
     # Blueprint登録
     from .auth.routes import login_bp
     from .etc.routes import routes_bp
     from .vehicle.routes import vehicle_bp
     from .Hluggage.routes import Hluggage_bp
-  
+    from .maintenance.routes import maintenance_bp
+    from .employee.routes import employee_bp
+
+    app.register_blueprint(maintenance_bp)
     app.register_blueprint(login_bp)
     app.register_blueprint(routes_bp)
     app.register_blueprint(vehicle_bp)
     app.register_blueprint(Hluggage_bp)
+    app.register_blueprint(employee_bp)
 
     @app.route("/", methods=["GET"])
     def home():

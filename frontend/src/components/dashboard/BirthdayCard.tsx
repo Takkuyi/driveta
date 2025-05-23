@@ -19,7 +19,7 @@ export default function BirthdayCard() {
   useEffect(() => {
     const fetchBirthdays = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/api/employees/birthday_soon');
+        const response = await fetch('http://127.0.0.1:5000/api/employee/birthday_soon');
         if (!response.ok) {
           throw new Error(`APIエラー: ${response.status}`);
         }

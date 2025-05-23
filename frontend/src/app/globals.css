@@ -18,6 +18,32 @@
   font-weight: bold;
 }
 
+
+/* サブメニューのスタイリング */
+.sidebar .nav-link.active {
+  font-weight: bold;
+}
+
+.sidebar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* サブメニュー項目のスタイリング */
+.sidebar .nav-link small {
+  font-size: 0.85rem;
+}
+
+/* サブメニューの展開/折りたたみアイコン */
+.sidebar .nav-link span:last-child {
+  font-size: 0.75rem;
+}
+
+/* カーソルをポインターに */
+.sidebar .nav-link {
+  cursor: pointer;
+}
+
+
 /* モバイル対応 */
 @media (max-width: 768px) {
   .sidebar.open {

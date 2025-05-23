@@ -1,35 +1,78 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Table, Button, Badge, Card, Form, InputGroup } from 'react-bootstrap';
+import { Table, Button, Badge, Card, Form, InputGroup, Spinner, Alert } from 'react-bootstrap';
+import { formatRegistrationDate, formatPlate } from '@/utils/formatters';
 
 export default function VehiclesPage() {
-  // ダミーデータ
-  const [vehicles, setVehicles] = useState([
-    { id: 1, number: 'TRK-001', plate: '高崎 830 あ 3035', type: 'トラック', manufacturer: 'いすゞ', model: 'エルフ', year: 2020, status: '運行中' },
-    { id: 2, number: 'TRK-002', plate: '高崎 500 い 5678', type: 'トラック', manufacturer: '日野', model: 'デュトロ', year: 2021, status: '整備中' },
-    { id: 3, number: 'TRK-003', plate: '高崎 300 う 9012', type: 'トラック', manufacturer: '三菱ふそう', model: 'キャンター', year: 2019, status: '待機中' }
-  ]);
-  
-  // 検索機能
+  // 状態管理
+  const [vehicles, setVehicles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  
+
+  // APIからデータを取得
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        setLoading(true);
+        // APIエンドポイントからデータを取得
+        const response = await fetch('http://127.0.0.1:5000/api/vehicles/');
+        
+        if (!response.ok) {
+          throw new Error(`APIエラー: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('API レスポンス:', data); // デバッグ用
+        setVehicles(data);
+        setError(null);
+      } catch (err) {
+        console.error('車両データの取得に失敗しました:', err);
+        setError(`車両データの取得に失敗しました。${err.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVehicles();
+  }, []); // 空の依存配列でコンポーネントマウント時に1回だけ実行
+
+  // 車両データの表示用に整形
+  const formatYear = (yearValue) => {
+    // 年数の形式を修正（例: 405が2005年を表す場合の対応など）
+    if (!yearValue) return '不明';
+    if (yearValue < 1000) return `20${yearValue}`; // 2桁または3桁の場合の処理
+    return yearValue;
+  };
+
+  const formatPlate = (plate) => {
+    if (!plate) return '未登録';
+    // 余分な空白と改行を削除
+    return plate.replace(/\s+/g, ' ').replace(/\n/g, '').trim();
+  };
+
   // フィルター適用後の車両リスト
   const filteredVehicles = vehicles.filter(vehicle => {
-    // 検索条件のフィルタリング
+    // 検索条件のフィルタリング（null チェックを含む）
+    const numberMatch = vehicle.number && vehicle.number.toLowerCase().includes(searchTerm.toLowerCase());
+    const plateMatch = vehicle.plate && vehicle.plate.toLowerCase().includes(searchTerm.toLowerCase());
+    const manufacturerMatch = vehicle.manufacturer && vehicle.manufacturer.toLowerCase().includes(searchTerm.toLowerCase());
+    const modelMatch = vehicle.model && vehicle.model.toLowerCase().includes(searchTerm.toLowerCase());
+    
     const matchesSearch = 
-      vehicle.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.manufacturer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.model.toLowerCase().includes(searchTerm.toLowerCase());
+      searchTerm === '' || numberMatch || plateMatch || manufacturerMatch || modelMatch;
     
     // ステータスフィルタリング
     const matchesStatus = statusFilter === 'all' || vehicle.status === statusFilter;
     
     return matchesSearch && matchesStatus;
   });
+
+  // 利用可能なステータス値を抽出
+  const availableStatuses = [...new Set(vehicles.filter(v => v.status).map(v => v.status))];
 
   return (
     <div>
@@ -67,10 +110,9 @@ export default function VehiclesPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="all">すべての状態</option>
-              <option value="運行中">運行中</option>
-              <option value="整備中">整備中</option>
-              <option value="待機中">待機中</option>
-              <option value="廃車">廃車</option>
+              {availableStatuses.map(status => (
+                <option key={status} value={status}>{status}</option>
+              ))}
             </Form.Select>
           </div>
         </div>
@@ -78,9 +120,34 @@ export default function VehiclesPage() {
 
       <Card>
         <Card.Body>
-          {filteredVehicles.length === 0 ? (
+          {loading ? (
+            <div className="text-center p-5">
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">読み込み中...</span>
+              </Spinner>
+              <p className="mt-2">車両データを読み込んでいます...</p>
+            </div>
+          ) : error ? (
+            <Alert variant="danger">
+              <Alert.Heading>エラーが発生しました</Alert.Heading>
+              <p>{error}</p>
+              <hr />
+              <div className="d-flex justify-content-end">
+                <Button 
+                  variant="outline-danger" 
+                  onClick={() => window.location.reload()}
+                >
+                  再試行
+                </Button>
+              </div>
+            </Alert>
+          ) : filteredVehicles.length === 0 ? (
             <div className="text-center p-4">
-              <p className="text-muted">条件に一致する車両がありません</p>
+              <p className="text-muted">
+                {vehicles.length === 0 
+                  ? '車両データがありません。新規車両を登録してください。' 
+                  : '条件に一致する車両がありません。'}
+              </p>
             </div>
           ) : (
             <Table striped bordered hover responsive>
@@ -88,8 +155,8 @@ export default function VehiclesPage() {
                 <tr>
                   <th>車両番号</th>
                   <th>ナンバープレート</th>
-                  <th>車種</th>
-                  <th>製造年</th>
+                  <th>メーカー/型式</th>
+                  <th>年式</th>
                   <th>状態</th>
                   <th>操作</th>
                 </tr>
@@ -97,17 +164,22 @@ export default function VehiclesPage() {
               <tbody>
                 {filteredVehicles.map((vehicle) => (
                   <tr key={vehicle.id}>
-                    <td>{vehicle.number}</td>
-                    <td>{vehicle.plate}</td>
-                    <td>{vehicle.manufacturer} {vehicle.model}</td>
-                    <td>{vehicle.year}</td>
+                    <td>{vehicle.number || '未登録'}</td>
+                    <td>{formatPlate(vehicle.plate)}</td>
+                    <td>
+                      {vehicle.manufacturer && 
+                        <span>{vehicle.manufacturer} </span>
+                      }
+                      {vehicle.model}
+                    </td>
+                    <td>{formatRegistrationDate(vehicle.year)}</td>
                     <td>
                       <Badge bg={
                         vehicle.status === '運行中' ? 'success' : 
-                        vehicle.status === '整備中' ? 'warning' : 
-                        vehicle.status === '待機中' ? 'info' : 'danger'
+                        vehicle.status === '減車済み' ? 'warning' : 
+                        vehicle.status === '売却済み' ? 'info' : 'secondary'
                       }>
-                        {vehicle.status}
+                        {vehicle.status || '不明'}
                       </Badge>
                     </td>
                     <td>
