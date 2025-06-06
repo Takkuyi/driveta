@@ -55,9 +55,8 @@ def list_employees():
 @employee_bp.route('/<int:employee_id>/', methods=['GET'])
 def get_employee(employee_id):
     # 従業員の取得
-    is_active = request.args.get('is_active')
+    is_active = request.args.get('is_active')    
     employee = Employee.query.get_or_404(employee_id)
-
 
     if is_active is not None:
         # クエリパラメータは文字列なので、boolに変換
@@ -65,7 +64,6 @@ def get_employee(employee_id):
             query = query.filter(Employee.is_active == True)
         elif is_active.lower() == 'false':
             query = query.filter(Employee.is_active == False)
-
 
     # レスポンスデータの構築
     result = {
