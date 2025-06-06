@@ -1,9 +1,12 @@
+# backend/app/Hluggage/routes.py (URL prefix修正版)
+
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 from app.Hluggage.models import db, CrateWeights, CourseGroups, Courses, Clients, LoadingData, LoadingMethods
 from sqlalchemy import func, case
 
-Hluggage_bp = Blueprint("hluggage", __name__)
+# URL prefixを明確に指定
+Hluggage_bp = Blueprint("hluggage", __name__, url_prefix="/api/hluggage")
 
 # 🔹 全テーブルリスト（テーブル名: クラス名）
 TABLES = {
@@ -92,24 +95,6 @@ def delete_record(table_name, id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
-
-#@routes_bp.route("/loading_data/date/<string:date_str>", methods=["GET"])
-#def get_loading_data_by_date(date_str):
- #   """指定した日付の積込量データを取得するAPI"""
-  #  try:
-   #     target_date = datetime.strptime(date_str, "%Y-%m-%d")
-    #except ValueError:
-     #   return jsonify({"エラー": "無効な日付形式。YYYY-MM-DD で指定してください"}), 400
-
-#    start_of_day = target_date.replace(hour=0, minute=0, second=0, microsecond=0)
-#    end_of_day = target_date.replace(hour=23, minute=59, second=59, microsecond=999999)
-
-#    records = LoadingData.query.filter(
-#        LoadingData.fld_仕分日 >= start_of_day,
-#        LoadingData.fld_仕分日 <= end_of_day
-#    ).all()
-
-#    return jsonify([record.to_dict() for record in records]), 200
 
 @Hluggage_bp.route("/loading_data/date/<string:date_str>", methods=["GET"])
 def get_loading_data_by_date(date_str):
