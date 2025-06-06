@@ -9,8 +9,4 @@ cors = CORS()
 login_manager = LoginManager()
 migrate = Migrate()
 
-from app.auth.models import User
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+# User loader は __init__.py で設定する

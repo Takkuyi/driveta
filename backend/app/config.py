@@ -1,5 +1,4 @@
-# backend/app/config.py に追加
-
+# backend/app/config.py
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
@@ -14,20 +13,13 @@ class Config:
     SESSION_COOKIE_SECURE = False  # 開発環境ではFalse（HTTPS環境ではTrue）
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
-    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)  # セッション有効期限
-    
-    # CORS設定
-    CORS_SUPPORTS_CREDENTIALS = True
-    CORS_ORIGINS = ["http://localhost:3000"]  # フロントエンドのURL
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
 
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
-    
-    # 開発環境用のCORS設定
-    CORS_SUPPORTS_CREDENTIALS = True
-    CORS_ORIGINS = ["http://localhost:3000"]
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class ProductionConfig(Config):
     DEBUG = False
-    SESSION_COOKIE_SECURE = True  # 本番環境ではHTTPS必須
+    SESSION_COOKIE_SECURE = True
