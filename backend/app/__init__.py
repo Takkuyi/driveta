@@ -48,7 +48,7 @@ def create_app():
 
     # Blueprint登録
     from .auth.routes import login_bp
-    from .etc.routes import routes_bp
+    from .etc.routes import etc_bp
     from .vehicle.routes import vehicle_bp
     from .Hluggage.routes import Hluggage_bp
     from .maintenance.routes import maintenance_bp
@@ -59,7 +59,7 @@ def create_app():
     app.register_blueprint(vehicle_bp)    # /api/vehicles/*
     app.register_blueprint(maintenance_bp) # /api/maintenance/*
     app.register_blueprint(employee_bp)   # /api/employee/*
-    app.register_blueprint(routes_bp)     # /etc/*
+    app.register_blueprint(etc_bp)     # /etc/*
     app.register_blueprint(Hluggage_bp)   # /*
 
     @app.route("/", methods=["GET"])
