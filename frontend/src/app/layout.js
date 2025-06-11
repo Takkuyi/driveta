@@ -142,7 +142,9 @@ export default function RootLayout({ children }) {
     },
     { icon: '🔧', title: '整備記録', path: '/maintenance' },
     { icon: '📝', title: '配送スケジュール', path: '/schedule' },
-    { icon: '💰', title: 'ETC記録', path: '/etc-records' }
+    { icon: '💰', title: 'ETC記録', path: '/etc-records' },
+    { icon: '📈', title: '給油情報', path: '/fuel' },
+ 
   ];
 
   return (

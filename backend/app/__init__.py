@@ -40,7 +40,8 @@ def create_app():
     from .Hluggage.models import CrateWeights, CourseGroups, Courses, Clients, LoadingData, LoadingMethods
     from .maintenance.models import MaintenanceType, MaintenanceStatus, MaintenanceSchedule
     from .employee.models import Employee
-
+    from .fuel.models import EnefleRecord, EneosWingRecord, KitasekiRecord
+    
     # User loaderの設定
     @login_manager.user_loader
     def load_user(user_id):
@@ -53,6 +54,7 @@ def create_app():
     from .Hluggage.routes import Hluggage_bp
     from .maintenance.routes import maintenance_bp
     from .employee.routes import employee_bp
+    from .fuel.routes import fuel_bp
 
     # Blueprint登録（順序を整理）
     app.register_blueprint(login_bp)      # /api/auth/*
@@ -61,6 +63,7 @@ def create_app():
     app.register_blueprint(employee_bp)   # /api/employee/*
     app.register_blueprint(etc_bp)     # /etc/*
     app.register_blueprint(Hluggage_bp)   # /*
+    app.register_blueprint(fuel_bp)       # /api/fuel/*
 
     @app.route("/", methods=["GET"])
     def home():
